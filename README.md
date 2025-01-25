@@ -240,7 +240,7 @@
             wheelDescription.innerHTML = '';
             segments.forEach(segment => {
                 const prizeInfo = document.createElement('p');
-                prizeInfo.textContent = ${segment.name} - ${segment.percentage}%;
+                prizeInfo.textContent = `${segment.name} - ${segment.percentage}%`;
                 wheelDescription.appendChild(prizeInfo);
             });
         }
@@ -290,7 +290,7 @@
 
         // Function to show the pop-up with a "Close" button
         function showPopup(winner) {
-            popupMessage.textContent = Congratulations! You have won ${winner.name};
+            popupMessage.textContent = `Congratulations! You have won ${winner.name}`;
             popup.style.display = 'flex';
         }
 
