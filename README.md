@@ -37,7 +37,6 @@
             transition: transform 4s ease-out;
         }
 
-        /* Each segment will be positioned using transform and clip-path */
         .segment {
             position: absolute;
             width: 50%;
@@ -48,8 +47,9 @@
             justify-content: center;
             font-size: 14px;
             font-weight: bold;
-            color: white;
+            color: black;
             text-align: center;
+            padding: 5px;
             transition: transform 0.4s ease-out;
         }
 
@@ -75,7 +75,6 @@
             background-color: #e67e22;
         }
 
-        /* Popout Message */
         .popout {
             position: fixed;
             top: 50%;
