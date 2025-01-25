@@ -14,14 +14,35 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            flex-direction: column;
         }
 
         .container {
             text-align: center;
+            margin-bottom: 20px;
         }
 
         #wheel-container {
             margin: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wheel-and-description {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheel-description {
+            margin-left: 20px;
+            background-color: #444;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            width: 250px;
+            max-height: 400px;
+            overflow-y: scroll;
         }
 
         .controls {
@@ -61,6 +82,9 @@
             padding: 10px;
             background-color: #444;
             border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .saved-wheel:hover {
@@ -93,8 +117,9 @@
 <body>
     <div class="container">
         <h1>Wheel Spinner</h1>
-        <div id="wheel-container">
+        <div id="wheel-container" class="wheel-and-description">
             <canvas id="wheel" width="400" height="400"></canvas>
+            <div id="wheel-description" class="wheel-description"></div>
         </div>
 
         <div class="controls">
@@ -130,6 +155,7 @@
         const savedWheelsList = document.getElementById('saved-wheels');
         const popup = document.getElementById('popup');
         const popupContent = document.getElementById('popup-content');
+        const wheelDescription = document.getElementById('wheel-description');
 
         // Function to draw the wheel
         function drawWheel() {
@@ -161,6 +187,16 @@
             });
 
             ctx.resetTransform();
+        }
+
+        // Function to update the prize description area
+        function updateWheelDescription() {
+            wheelDescription.innerHTML = '';
+            segments.forEach(segment => {
+                const prizeInfo = document.createElement('p');
+                prizeInfo.textContent = `${segment.name} - ${segment.percentage}%`;
+                wheelDescription.appendChild(prizeInfo);
+            });
         }
 
         // Function to spin the wheel
@@ -211,7 +247,7 @@
                 segmentInput.value = '';  // Clear input fields
                 percentageInput.value = '';
                 drawWheel();
-                updateSavedWheelsList();
+                updateWheelDescription();
             } else {
                 alert('Please enter a valid segment name and percentage (total percentage must equal 100)');
             }
@@ -232,6 +268,15 @@
         function loadWheel(loadedSegments) {
             segments = loadedSegments;
             drawWheel();
+            updateWheelDescription();
+        }
+
+        // Function to delete a saved wheel from localStorage
+        function deleteSavedWheel(wheelIndex) {
+            const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
+            savedWheels.splice(wheelIndex, 1);
+            localStorage.setItem('savedWheels', JSON.stringify(savedWheels));
+            updateSavedWheelsList();
         }
 
         // Function to update the list of saved wheels
@@ -240,8 +285,16 @@
             const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
             savedWheels.forEach((wheel, index) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${wheel.name}`;
                 listItem.classList.add('saved-wheel');
+                listItem.textContent = wheel.name;
+
+                // Delete button for each saved wheel
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.addEventListener('click', () => deleteSavedWheel(index));
+
+                listItem.appendChild(deleteBtn);
                 listItem.addEventListener('click', () => loadWheel(wheel.segments));
                 savedWheelsList.appendChild(listItem);
             });
