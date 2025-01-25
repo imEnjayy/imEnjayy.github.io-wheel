@@ -207,7 +207,10 @@
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
-                ctx.fillStyle = (i % 2 === 0) ? '#3369e8' : '#d50f25'; // Alternating colors for simplicity
+                
+                // Apply a color pattern
+                const colors = ['#3369e8', '#d50f25', '#eeb211', '#009925', '#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800'];
+                ctx.fillStyle = colors[i % colors.length];  // Cycle through colors
                 ctx.fill();
                 
                 // Draw black outline between segments
@@ -260,12 +263,12 @@
                 const elapsedTime = time - startTime;
 
                 // Slow down the spin more for added suspense
-                const progress = Math.min(elapsedTime / (spinDuration * 2), 1); // Slower progress (slower than previous value)
-                spinAngle = (progress * spinTarget) * 0.85 + (spinTarget * 0.15);  // Gradually slow down
+                const progress = Math.min(elapsedTime / spinDuration, 1); // Correct progress calculation
+                spinAngle = (progress * spinTarget);  // Gradually slow down
 
                 drawWheel();
 
-                if (elapsedTime < spinDuration * 2) {
+                if (elapsedTime < spinDuration) {
                     requestAnimationFrame(animate);
                 } else {
                     spinning = false;
