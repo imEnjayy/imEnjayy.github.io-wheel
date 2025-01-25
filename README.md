@@ -122,7 +122,7 @@
     </div>
 
     <script>
-        // Wheel prize data with percentages
+        // Wheel prize data with percentages (all prizes added up should be 100% total per wheel)
         const viewerWheelPrizes = [
             { prize: 0, percentage: 15 },
             { prize: 2, percentage: 14 },
