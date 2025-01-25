@@ -54,7 +54,6 @@
             transition: transform 0.4s ease-out;
         }
 
-        /* Odd/even coloring for alternating segments */
         .segment:nth-child(odd) {
             background-color: #FF5722;
         }
@@ -77,7 +76,6 @@
             background-color: #e67e22;
         }
 
-        /* Popout message styles */
         .popout {
             position: fixed;
             top: 50%;
@@ -95,21 +93,18 @@
     <div class="container">
         <h1>Prize Wheels</h1>
 
-        <!-- Viewer Wheel -->
         <div class="wheel-container">
             <h2>Viewer Wheel</h2>
             <div class="wheel" id="viewerWheel"></div>
             <button onclick="spinWheel('viewer')">Spin Viewer Wheel</button>
         </div>
 
-        <!-- Code User Wheel -->
         <div class="wheel-container">
             <h2>Code User Wheel</h2>
             <div class="wheel" id="codeUserWheel"></div>
             <button onclick="spinWheel('codeUser')">Spin Code User Wheel</button>
         </div>
 
-        <!-- No Profit Wheel -->
         <div class="wheel-container">
             <h2>No Profit Wheel</h2>
             <div class="wheel" id="noProfitWheel"></div>
@@ -122,7 +117,7 @@
     </div>
 
     <script>
-        // Wheel prize data with percentages (all prizes added up should be 100% total per wheel)
+        // Prize data with percentages for each wheel
         const viewerWheelPrizes = [
             { prize: 0, percentage: 15 },
             { prize: 2, percentage: 14 },
@@ -159,7 +154,7 @@
             { prize: 7, percentage: 4 }
         ];
 
-        // Function to generate wheel with segments
+        // Create the wheel by setting up the segments
         function createWheel(wheelType) {
             let prizeData = [];
             if (wheelType === 'viewer') {
@@ -174,20 +169,25 @@
             const numberOfSegments = 36;
             let segments = [];
 
-            // Calculate total segments based on percentages
+            // Fill segments based on prize percentages
             prizeData.forEach(prize => {
-                let segmentCount = Math.floor((prize.percentage / 100) * numberOfSegments);
+                const segmentCount = Math.floor((prize.percentage / 100) * numberOfSegments);
                 for (let i = 0; i < segmentCount; i++) {
                     segments.push(prize.prize);
                 }
             });
 
+            // If there are fewer than 36 segments, fill up remaining spots
+            while (segments.length < numberOfSegments) {
+                segments.push(segments[segments.length - 1]);
+            }
+
             // Shuffle segments for randomness
             shuffleArray(segments);
 
-            // Create 36 segments for the wheel
+            // Create 36 segments
             for (let i = 0; i < numberOfSegments; i++) {
-                let segment = document.createElement('div');
+                const segment = document.createElement('div');
                 segment.classList.add('segment');
                 segment.style.transform = `rotate(${(360 / numberOfSegments) * i}deg)`;
                 segment.innerHTML = `$${segments[i]}`;
@@ -195,25 +195,24 @@
             }
         }
 
-        // Shuffle function to randomize segment order
+        // Shuffle function to randomize segments
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                [array[i], array[j]] = [array[j], array[i]];
             }
         }
 
-        // Spin Wheel Function
+        // Spin the wheel and determine the prize
         function spinWheel(wheelType) {
             const wheel = document.getElementById(wheelType + 'Wheel');
-            const totalSpins = Math.floor(Math.random() * 3) + 4;  // Random number of spins
-
-            // Add a random rotation for the spin
+            const totalSpins = Math.floor(Math.random() * 3) + 4;
             const rotation = Math.floor(Math.random() * 360);
+
+            // Spin the wheel
             wheel.style.transition = 'transform 4s ease-out';
             wheel.style.transform = `rotate(${rotation + 360 * totalSpins}deg)`;
 
-            // Get the prize after the wheel stops spinning
             setTimeout(() => {
                 let prizeData = [];
                 if (wheelType === 'viewer') {
@@ -224,19 +223,18 @@
                     prizeData = noProfitWheelPrizes;
                 }
 
-                // Determine the prize based on the final position
-                const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / prizeData.length));
-                const prizeAmount = prizeData[prizeIndex].prize;
+                // Determine the index of the prize based on the final position
+                const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / 36));
+                const prizeAmount = prizeData[prizeIndex];
 
-                // Show popout message with the prize
-                document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
+                // Display the prize message
+                document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount.prize} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
                 document.getElementById('popout').style.display = "block";
 
-                // Hide popout after 3 seconds
                 setTimeout(() => {
                     document.getElementById('popout').style.display = "none";
                 }, 3000);
-            }, 4000);  // Wait for the wheel to stop spinning
+            }, 4000);
         }
 
         // Initialize wheels
