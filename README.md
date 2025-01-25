@@ -70,12 +70,6 @@
             width: 200px;
         }
 
-        select {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px;
-        }
-
         #saved-wheels {
             margin-top: 20px;
             list-style: none;
@@ -142,13 +136,6 @@
             <button id="save-btn">Save Wheel</button>
             <button id="new-wheel-btn">Create New Wheel</button>
             <button id="shuffle-btn">Shuffle Segments</button>
-
-            <!-- Colorway Dropdown -->
-            <label for="colorway-select">Select Colorway: </label>
-            <select id="colorway-select">
-                <option value="default">Default</option>
-                <option value="rainbow">Rainbow</option>
-            </select>
         </div>
 
         <h3>Saved Wheels</h3>
@@ -184,15 +171,12 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
-        const colorwaySelect = document.getElementById('colorway-select');
 
-        // Define default and rainbow colorways
-        const colorways = {
-            default: ['#3369e8', '#d50f25', '#eeb211', '#009925'],
-            rainbow: ['#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800']
-        };
-
-        let selectedColorway = colorways.default;  // Default colorway
+        // Define mixed colorways
+        const colorways = [
+            '#3369e8', '#d50f25', '#eeb211', '#009925', // Default colors
+            '#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800' // Rainbow colors
+        ];
 
         // Function to draw the wheel
         function drawWheel() {
@@ -209,8 +193,13 @@
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
-                ctx.fillStyle = selectedColorway[i % selectedColorway.length];
+                ctx.fillStyle = colorways[i % colorways.length]; // Randomize colors from both color schemes
                 ctx.fill();
+                
+                // Draw black outline between segments
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
 
                 // Text
                 ctx.save();
@@ -353,12 +342,6 @@
         // Update the spin duration label when the slider changes
         spinDurationSlider.addEventListener('input', () => {
             spinDurationLabel.textContent = spinDurationSlider.value;
-        });
-
-        // Update colorway when selected
-        colorwaySelect.addEventListener('change', () => {
-            selectedColorway = colorways[colorwaySelect.value];
-            drawWheel();
         });
 
         // Add event listeners
