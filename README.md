@@ -37,25 +37,27 @@
             transition: transform 4s ease-out;
         }
 
-        .wheel .segment {
+        /* Each segment will be positioned using transform and clip-path */
+        .segment {
             position: absolute;
             width: 50%;
             height: 50%;
-            background-color: #FF8C00;
             clip-path: polygon(100% 0%, 100% 100%, 0 100%, 0 0%);
-            text-align: center;
-            line-height: 80px;
-            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             font-weight: bold;
-            transform-origin: 100% 100%;
+            color: white;
+            text-align: center;
+            transition: transform 0.4s ease-out;
         }
 
-        .wheel .segment:nth-child(even) {
+        .segment:nth-child(odd) {
             background-color: #FF5722;
         }
 
-        .wheel .segment:nth-child(odd) {
+        .segment:nth-child(even) {
             background-color: #4CAF50;
         }
 
@@ -206,13 +208,13 @@
             shuffleArray(prizes); // Shuffle prizes to randomize positions
 
             const wheel = document.getElementById(wheelType + 'Wheel');
-            const numberOfSegments = prizes.length;
+            const numberOfSegments = 36;
 
             // Create 36 segments for the wheel
             for (let i = 0; i < numberOfSegments; i++) {
                 let segment = document.createElement('div');
                 segment.classList.add('segment');
-                segment.style.transform = `rotate(${(360 / 36) * i}deg)`;
+                segment.style.transform = `rotate(${(360 / numberOfSegments) * i}deg)`;
                 segment.innerHTML = `$${prizes[i]}`;
                 wheel.appendChild(segment);
             }
