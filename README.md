@@ -111,7 +111,7 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            border: 5px solid #d50f25; /* Added outline color and thickness */
+            border: 5px solid #d50f25;
         }
 
         .close-btn {
@@ -127,11 +127,24 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
+
+        #triangle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid red;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Wheel Spinner</h1>
+        <h1 id="wheel-title">Wheel Spinner</h1>
         <div id="wheel-container" class="wheel-and-description">
             <canvas id="wheel" width="400" height="400"></canvas>
             <div id="wheel-description" class="wheel-description"></div>
@@ -164,6 +177,8 @@
         </div>
     </div>
 
+    <div id="triangle"></div> <!-- Triangle indicator -->
+
     <script>
         // Initialize global variables
         let segments = [];  // Array to store the segments
@@ -191,6 +206,8 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
+        const triangle = document.getElementById('triangle');
+        const wheelTitle = document.getElementById('wheel-title');
 
         // Define mixed colorways
         const colorways = [
@@ -248,7 +265,7 @@
             });
         }
 
-        // Function to spin the wheel
+        // Function to spin the wheel with slower animation for suspense
         function spinWheel() {
             if (spinning) return;  // Prevent multiple spins at once
 
@@ -260,15 +277,21 @@
             const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
 
             let startTime = null;
-            
+            let decelerationTime = 0;
+
             function animate(time) {
                 if (!startTime) startTime = time; // Store the start time of the animation
                 const elapsedTime = time - startTime;
 
+                // Decelerate the spin to slow down
+                const progress = Math.min(elapsedTime / spinDuration, 1);
+                decelerationTime = progress * spinTarget; 
+
+                spinAngle = decelerationTime;  // Gradually increase the spin angle
+                drawWheel();
+                triangle.style.transform = `translate(-50%, -50%) rotate(${spinAngle}deg)`; // Triangle moves with the wheel
+                
                 if (elapsedTime < spinDuration) {
-                    const progress = elapsedTime / spinDuration;
-                    spinAngle = progress * spinTarget; // Gradually increase the spin angle
-                    drawWheel();
                     requestAnimationFrame(animate);
                 } else {
                     spinning = false;
@@ -329,10 +352,11 @@
         }
 
         // Function to load a saved wheel from localStorage
-        function loadWheel(loadedSegments) {
+        function loadWheel(loadedSegments, wheelName) {
             segments = loadedSegments;
             drawWheel();
             updateWheelDescription();
+            wheelTitle.textContent = wheelName;  // Change the title to the loaded wheel name
         }
 
         // Function to delete a saved wheel from localStorage
@@ -359,7 +383,7 @@
                 deleteBtn.addEventListener('click', () => deleteSavedWheel(index));
 
                 listItem.appendChild(deleteBtn);
-                listItem.addEventListener('click', () => loadWheel(wheel.segments));
+                listItem.addEventListener('click', () => loadWheel(wheel.segments, wheel.name));
                 savedWheelsList.appendChild(listItem);
             });
         }
@@ -378,6 +402,7 @@
             totalPercentage = 0;
             drawWheel();
             updateWheelDescription();
+            wheelTitle.textContent = 'Wheel Spinner';  // Reset the title when creating a new wheel
         });
         shuffleBtn.addEventListener('click', shuffleSegments);
 
