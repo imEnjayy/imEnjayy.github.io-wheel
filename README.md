@@ -169,7 +169,7 @@
             const numberOfSegments = 36;
             let segments = [];
 
-            // Fill segments based on prize percentages
+            // Calculate the number of segments for each prize
             prizeData.forEach(prize => {
                 const segmentCount = Math.floor((prize.percentage / 100) * numberOfSegments);
                 for (let i = 0; i < segmentCount; i++) {
@@ -177,9 +177,9 @@
                 }
             });
 
-            // If there are fewer than 36 segments, fill up remaining spots
+            // Fill up remaining spots if there are fewer than 36 segments
             while (segments.length < numberOfSegments) {
-                segments.push(segments[segments.length - 1]);
+                segments.push(segments[segments.length - 1]);  // Repeating the last prize if necessary
             }
 
             // Shuffle segments for randomness
@@ -206,8 +206,8 @@
         // Spin the wheel and determine the prize
         function spinWheel(wheelType) {
             const wheel = document.getElementById(wheelType + 'Wheel');
-            const totalSpins = Math.floor(Math.random() * 3) + 4;
-            const rotation = Math.floor(Math.random() * 360);
+            const totalSpins = Math.floor(Math.random() * 3) + 4;  // Random number of spins
+            const rotation = Math.floor(Math.random() * 360); // Random starting point
 
             // Spin the wheel
             wheel.style.transition = 'transform 4s ease-out';
@@ -223,18 +223,18 @@
                     prizeData = noProfitWheelPrizes;
                 }
 
-                // Determine the index of the prize based on the final position
-                const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / 36));
-                const prizeAmount = prizeData[prizeIndex];
+                // Calculate prize index based on wheel stop position
+                const prizeIndex = Math.floor(((rotation + 360 * totalSpins) % 360) / (360 / 36));
+                const prizeAmount = prizeData[prizeIndex].prize;
 
-                // Display the prize message
-                document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount.prize} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
+                // Show popout message with the prize
+                document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
                 document.getElementById('popout').style.display = "block";
 
                 setTimeout(() => {
                     document.getElementById('popout').style.display = "none";
                 }, 3000);
-            }, 4000);
+            }, 4000);  // Adjust delay for smooth transition
         }
 
         // Initialize wheels
