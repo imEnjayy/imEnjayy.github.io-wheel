@@ -122,42 +122,84 @@
     </div>
 
     <script>
-        // Wheel prize data
-        const viewerWheelPrizes = [0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 3, 3, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 10, 10, 10, 10, 12, 12, 12, 12];
-        const codeUserWheelPrizes = [3, 3, 3, 3, 5, 5, 5, 5, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 12, 12, 12, 12, 15, 15, 15, 15, 20, 20, 20, 20];
-        const noProfitWheelPrizes = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2.5, 2.5, 2.5, 2.5, 3, 3, 3, 3, 3.5, 3.5, 3.5, 3.5, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7];
+        // Wheel prize data with percentages
+        const viewerWheelPrizes = [
+            { prize: 0, percentage: 15 },
+            { prize: 2, percentage: 14 },
+            { prize: 3, percentage: 12 },
+            { prize: 5, percentage: 12 },
+            { prize: 6, percentage: 11 },
+            { prize: 7, percentage: 10 },
+            { prize: 8, percentage: 9 },
+            { prize: 10, percentage: 9 },
+            { prize: 12, percentage: 8 }
+        ];
 
-        // Shuffle function to randomize prize order
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-            }
-        }
+        const codeUserWheelPrizes = [
+            { prize: 3, percentage: 15 },
+            { prize: 5, percentage: 14 },
+            { prize: 7, percentage: 12 },
+            { prize: 8, percentage: 12 },
+            { prize: 9, percentage: 11 },
+            { prize: 10, percentage: 10 },
+            { prize: 12, percentage: 9 },
+            { prize: 15, percentage: 9 },
+            { prize: 20, percentage: 8 }
+        ];
+
+        const noProfitWheelPrizes = [
+            { prize: 0, percentage: 16 },
+            { prize: 1, percentage: 16 },
+            { prize: 2, percentage: 16 },
+            { prize: 2.5, percentage: 12 },
+            { prize: 3, percentage: 10 },
+            { prize: 3.5, percentage: 8 },
+            { prize: 4, percentage: 7 },
+            { prize: 5, percentage: 6 },
+            { prize: 7, percentage: 4 }
+        ];
 
         // Function to generate wheel with segments
         function createWheel(wheelType) {
-            let prizes = [];
+            let prizeData = [];
             if (wheelType === 'viewer') {
-                prizes = viewerWheelPrizes;
+                prizeData = viewerWheelPrizes;
             } else if (wheelType === 'codeUser') {
-                prizes = codeUserWheelPrizes;
+                prizeData = codeUserWheelPrizes;
             } else if (wheelType === 'noProfit') {
-                prizes = noProfitWheelPrizes;
+                prizeData = noProfitWheelPrizes;
             }
-
-            shuffleArray(prizes); // Shuffle prizes to randomize positions
 
             const wheel = document.getElementById(wheelType + 'Wheel');
             const numberOfSegments = 36;
+            let segments = [];
+
+            // Calculate total segments based on percentages
+            prizeData.forEach(prize => {
+                let segmentCount = Math.floor((prize.percentage / 100) * numberOfSegments);
+                for (let i = 0; i < segmentCount; i++) {
+                    segments.push(prize.prize);
+                }
+            });
+
+            // Shuffle segments for randomness
+            shuffleArray(segments);
 
             // Create 36 segments for the wheel
             for (let i = 0; i < numberOfSegments; i++) {
                 let segment = document.createElement('div');
                 segment.classList.add('segment');
                 segment.style.transform = `rotate(${(360 / numberOfSegments) * i}deg)`;
-                segment.innerHTML = `$${prizes[i]}`;
+                segment.innerHTML = `$${segments[i]}`;
                 wheel.appendChild(segment);
+            }
+        }
+
+        // Shuffle function to randomize segment order
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
             }
         }
 
@@ -184,7 +226,7 @@
 
                 // Determine the prize based on the final position
                 const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / prizeData.length));
-                const prizeAmount = prizeData[prizeIndex];
+                const prizeAmount = prizeData[prizeIndex].prize;
 
                 // Show popout message with the prize
                 document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
