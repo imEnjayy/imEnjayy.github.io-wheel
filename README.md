@@ -165,26 +165,26 @@
             }
 
             const wheel = document.getElementById(wheelType + 'Wheel');
-            const numberOfSegments = 36;
+            const numberOfSegments = 9;
             let segments = [];
 
             // Calculate the number of segments for each prize
             prizeData.forEach(prize => {
-                const segmentCount = Math.floor((prize.percentage / 100) * numberOfSegments);
+                const segmentCount = Math.round((prize.percentage / 100) * numberOfSegments);
                 for (let i = 0; i < segmentCount; i++) {
                     segments.push(prize.prize);
                 }
             });
 
-            // Fill up remaining spots if there are fewer than 36 segments
+            // Ensure the total number of segments is exactly 9
             while (segments.length < numberOfSegments) {
-                segments.push(segments[segments.length - 1]);  // Repeating the last prize if necessary
+                segments.push(segments[segments.length - 1]);  // Add last prize if necessary
             }
 
             // Shuffle segments for randomness
             shuffleArray(segments);
 
-            // Create 36 segments
+            // Create 9 segments
             for (let i = 0; i < numberOfSegments; i++) {
                 const segment = document.createElement('div');
                 segment.classList.add('segment');
@@ -223,7 +223,7 @@
                 }
 
                 // Calculate prize index based on wheel stop position
-                const prizeIndex = Math.floor(((rotation + 360 * totalSpins) % 360) / (360 / 36));
+                const prizeIndex = Math.floor(((rotation + 360 * totalSpins) % 360) / (360 / 9));
                 const prizeAmount = prizeData[prizeIndex].prize;
 
                 // Show popout message with the prize
