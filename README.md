@@ -111,6 +111,7 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            border: 5px solid #d50f25; /* Added outline color and thickness */
         }
 
         .close-btn {
