@@ -23,9 +23,11 @@
         }
 
         #wheel-container {
-            margin: 20px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .wheel-and-description {
@@ -127,25 +129,60 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
+
+        #spin-duration-slider {
+            width: 200px;
+        }
+
+        .spin-duration-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .percentage-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            width: 200px;
+            color: white;
+        }
+
+        .percentage-box input {
+            width: 70px;
+        }
+
+        .percentage-box span {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="wheel-title">Wheel Spinner</h1>
         <div id="wheel-container" class="wheel-and-description">
-            <canvas id="wheel" width="400" height="400"></canvas>
+            <canvas id="wheel" width="500" height="500"></canvas>
             <div id="wheel-description" class="wheel-description"></div>
         </div>
 
         <div class="controls">
             <input type="text" id="segment-input" placeholder="Enter segment name" />
-            <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
+            <div class="percentage-box">
+                <input type="number" id="percentage-input" placeholder="%" min="1" max="100" />
+                <span>%</span>
+            </div>
             <button id="add-segment-btn">Add Segment</button>
 
             <!-- Spin Time Slider -->
-            <label for="spin-duration-slider">Spin Duration (seconds): </label>
-            <input type="range" id="spin-duration-slider" min="1" max="10" value="5">
-            <span id="spin-duration-label">5</span> seconds
+            <div class="spin-duration-container">
+                <label for="spin-duration-slider">Spin Duration (seconds): </label>
+                <input type="range" id="spin-duration-slider" min="1" max="10" value="5">
+                <span id="spin-duration-label">5</span> seconds
+            </div>
 
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
