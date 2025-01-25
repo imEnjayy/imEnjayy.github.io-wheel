@@ -145,9 +145,9 @@
         let segments = [];  // Array to store the segments
         let totalPercentage = 0;
         let angle = 0;
-        let spinDuration = 7000; // 7 seconds for spinning
-        let spinStartTime = null;
-        let animationFrameId = null;
+        let spinning = false;  // Flag to track if the wheel is spinning
+        let spinAngle = 0;
+        let spinTimeout = null;
 
         // Get DOM elements
         const wheelCanvas = document.getElementById('wheel');
@@ -168,7 +168,7 @@
         function drawWheel() {
             const radius = wheelCanvas.width / 2;
             const segmentAngle = (2 * Math.PI) / 100;
-            let offsetAngle = -Math.PI / 2; // Start from top
+            let offsetAngle = -Math.PI / 2 + spinAngle; // Start from top
 
             ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
             ctx.translate(radius, radius);
@@ -208,17 +208,20 @@
 
         // Function to spin the wheel
         function spinWheel() {
-            const randomRotation = Math.random() * 360 + 3600; // Random between 3600 and 7200 degrees
-            const spinStartTime = Date.now();
-            
+            if (spinning) return;  // Prevent multiple spins at once
+
+            spinning = true;
+            spinAngle = 0;
+            const spinDuration = 3000; // Spin for 3 seconds
+            const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
+
             function animate() {
-                const elapsedTime = Date.now() - spinStartTime;
-                if (elapsedTime < spinDuration) {
-                    angle = (elapsedTime / spinDuration) * randomRotation;
+                if (spinAngle < spinTarget) {
+                    spinAngle += 10; // Increment the angle for smooth animation
                     drawWheel();
-                    animationFrameId = requestAnimationFrame(animate);
+                    requestAnimationFrame(animate);
                 } else {
-                    cancelAnimationFrame(animationFrameId);
+                    spinning = false;
                     const winner = getWinningSegment();
                     showPopup(winner);
                 }
@@ -229,7 +232,7 @@
 
         // Function to get the winning segment
         function getWinningSegment() {
-            const totalRotation = angle % 360;
+            const totalRotation = spinAngle % 360;
             const anglePerSegment = 360 / segments.length;
             const winningIndex = Math.floor(totalRotation / anglePerSegment);
             return segments[winningIndex];
