@@ -127,6 +127,14 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
+
+        .advanced-options {
+            margin-top: 10px;
+        }
+
+        .advanced-options label {
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -139,7 +147,13 @@
 
         <div class="controls">
             <input type="text" id="segment-input" placeholder="Enter segment name" />
-            <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
+            <div class="advanced-options">
+                <input type="checkbox" id="advanced-checkbox" />
+                <label for="advanced-checkbox">Advanced</label>
+            </div>
+            <div id="percentage-controls">
+                <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" disabled />
+            </div>
             <button id="add-segment-btn">Add Segment</button>
 
             <!-- Spin Time Slider -->
@@ -190,6 +204,7 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
+        const advancedCheckbox = document.getElementById('advanced-checkbox');
         const wheelTitle = document.getElementById('wheel-title');
 
         // Function to draw the wheel
@@ -302,18 +317,39 @@
         // Function to add a segment
         function addSegment() {
             const segmentName = segmentInput.value.trim();
-            const segmentPercentage = parseFloat(percentageInput.value);
 
-            if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
+            if (segmentName) {
+                let segmentPercentage;
+
+                // Check if advanced options are enabled
+                if (advancedCheckbox.checked) {
+                    segmentPercentage = parseFloat(percentageInput.value);
+
+                    if (isNaN(segmentPercentage) || segmentPercentage <= 0 || segmentPercentage > 100) {
+                        alert('Please enter a valid percentage (1-100).');
+                        return;
+                    }
+                } else {
+                    // Automatically divide percentage when advanced is not enabled
+                    segmentPercentage = 100 / (segments.length + 1);
+                }
+
+                // Add the new segment
                 segments.push({ name: segmentName, percentage: segmentPercentage });
                 totalPercentage += segmentPercentage;
 
-                segmentInput.value = '';  // Clear input fields
+                if (totalPercentage > 100) {
+                    alert('Total percentage exceeds 100%. Please adjust the percentages.');
+                    return;
+                }
+
+                // Clear the input fields
+                segmentInput.value = '';
                 percentageInput.value = '';
                 drawWheel();
                 updateWheelDescription();
             } else {
-                alert('Please enter a valid segment name and percentage (total percentage must equal 100)');
+                alert('Please enter a valid segment name.');
             }
         }
 
