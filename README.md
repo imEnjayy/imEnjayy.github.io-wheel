@@ -126,6 +126,12 @@
             <input type="text" id="segment-input" placeholder="Enter segment name" />
             <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
             <button id="add-segment-btn">Add Segment</button>
+
+            <!-- Spin Time Slider -->
+            <label for="spin-duration-slider">Spin Duration (seconds): </label>
+            <input type="range" id="spin-duration-slider" min="1" max="10" value="3">
+            <span id="spin-duration-label">3</span> seconds
+
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
             <button id="new-wheel-btn">Create New Wheel</button>
@@ -163,6 +169,8 @@
         const popup = document.getElementById('popup');
         const popupContent = document.getElementById('popup-content');
         const wheelDescription = document.getElementById('wheel-description');
+        const spinDurationSlider = document.getElementById('spin-duration-slider');
+        const spinDurationLabel = document.getElementById('spin-duration-label');
 
         // Function to draw the wheel
         function drawWheel() {
@@ -212,7 +220,9 @@
 
             spinning = true;
             spinAngle = 0;
-            const spinDuration = 3000; // Spin for 3 seconds
+
+            // Get the spin duration from the slider and convert to milliseconds
+            const spinDuration = spinDurationSlider.value * 1000; // In milliseconds
             const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
 
             function animate() {
@@ -339,6 +349,11 @@
             drawWheel();
             updateWheelDescription();
         }
+
+        // Update the spin duration label when the slider changes
+        spinDurationSlider.addEventListener('input', () => {
+            spinDurationLabel.textContent = spinDurationSlider.value;
+        });
 
         // Add event listeners
         addSegmentBtn.addEventListener('click', addSegment);
