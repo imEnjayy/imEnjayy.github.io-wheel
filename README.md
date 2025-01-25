@@ -269,7 +269,7 @@
             const segmentPercentage = parseFloat(percentageInput.value);
 
             if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
-                segments.push({ name: segmentName, percentage: segmentPercentage, color: getRandomColor() });
+                segments.push({ name: segmentName, percentage: segmentPercentage, color: getRandomRGBColor() });
                 totalPercentage += segmentPercentage;
 
                 segmentInput.value = '';  // Clear input fields
@@ -328,14 +328,12 @@
             });
         }
 
-        // Helper function to generate random colors for segments
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
+        // Helper function to generate random RGB colors for segments
+        function getRandomRGBColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r},${g},${b})`;
         }
 
         // Function to shuffle the segments
