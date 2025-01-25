@@ -127,11 +127,6 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
-
-        #spin-duration-feedback {
-            margin-top: 10px;
-            font-size: 18px;
-        }
     </style>
 </head>
 <body>
@@ -145,19 +140,17 @@
         <div class="controls">
             <input type="text" id="segment-input" placeholder="Enter segment name" />
             <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
-            <button id="add-segment-btn" aria-label="Add Segment">Add Segment</button>
+            <button id="add-segment-btn">Add Segment</button>
 
             <!-- Spin Time Slider -->
             <label for="spin-duration-slider">Spin Duration (seconds): </label>
-            <input type="range" id="spin-duration-slider" min="1" max="10" value="5" aria-label="Spin Duration">
+            <input type="range" id="spin-duration-slider" min="1" max="10" value="5">
             <span id="spin-duration-label">5</span> seconds
 
-            <div id="spin-duration-feedback">Spin Duration: Fast</div>
-
-            <button id="spin-btn" aria-label="Spin" disabled>Spin!</button>
-            <button id="save-btn" aria-label="Save Wheel">Save Wheel</button>
-            <button id="new-wheel-btn" aria-label="Create New Wheel">Create New Wheel</button>
-            <button id="shuffle-btn" aria-label="Shuffle Segments">Shuffle Segments</button>
+            <button id="spin-btn">Spin!</button>
+            <button id="save-btn">Save Wheel</button>
+            <button id="new-wheel-btn">Create New Wheel</button>
+            <button id="shuffle-btn">Shuffle Segments</button>
         </div>
 
         <h3>Saved Wheels</h3>
@@ -172,13 +165,15 @@
     </div>
 
     <script>
-        let segments = [];  
+        // Initialize global variables
+        let segments = [];  // Array to store the segments
         let totalPercentage = 0;
         let angle = 0;
-        let spinning = false;  
+        let spinning = false;  // Flag to track if the wheel is spinning
         let spinAngle = 0;
         let spinTimeout = null;
 
+        // Get DOM elements
         const wheelCanvas = document.getElementById('wheel');
         const ctx = wheelCanvas.getContext('2d');
         const segmentInput = document.getElementById('segment-input');
@@ -195,13 +190,13 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
-        const spinDurationFeedback = document.getElementById('spin-duration-feedback');
         const wheelTitle = document.getElementById('wheel-title');
 
+        // Function to draw the wheel
         function drawWheel() {
             const radius = wheelCanvas.width / 2;
             const segmentAngle = (2 * Math.PI) / 100;
-            let offsetAngle = -Math.PI / 2 + spinAngle; 
+            let offsetAngle = -Math.PI / 2 + spinAngle; // Start from top
 
             ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
             ctx.translate(radius, radius);
@@ -213,22 +208,25 @@
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
                 
-                // Random colors for segments
-                ctx.fillStyle = getRandomColor();
+                // Apply a color pattern
+                const colors = ['#3369e8', '#d50f25', '#eeb211', '#009925', '#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800'];
+                ctx.fillStyle = colors[i % colors.length];  // Cycle through colors
                 ctx.fill();
-
+                
+                // Draw black outline between segments
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = 'black';
                 ctx.stroke();
 
+                // Draw the text
                 ctx.save();
                 ctx.rotate(offsetAngle + anglePercentage / 2);
                 ctx.fillStyle = "white";
-                ctx.font = "24px Arial";
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = 'black';
-                ctx.strokeText(segment.name, radius / 2, 0);
-                ctx.fillText(segment.name, radius / 2, 0);
+                ctx.font = "24px Arial";  // Larger font size
+                ctx.lineWidth = 4; // Stroke width for the text
+                ctx.strokeStyle = 'black';  // Black stroke around text
+                ctx.strokeText(segment.name, radius / 2, 0);  // Add stroke
+                ctx.fillText(segment.name, radius / 2, 0);  // Add filled text
                 ctx.restore();
 
                 offsetAngle += anglePercentage;
@@ -237,6 +235,7 @@
             ctx.resetTransform();
         }
 
+        // Function to update the prize description area
         function updateWheelDescription() {
             wheelDescription.innerHTML = '';
             segments.forEach(segment => {
@@ -246,23 +245,26 @@
             });
         }
 
+        // Function to spin the wheel with a slow-down effect towards the end
         function spinWheel() {
-            if (spinning || segments.length === 0) return; 
+            if (spinning) return;  // Prevent multiple spins at once
 
             spinning = true;
             spinAngle = 0;
 
-            const spinDuration = spinDurationSlider.value * 1000;
-            const spinTarget = Math.random() * 7200 + 3600; 
+            // Get the spin duration from the slider and convert to milliseconds
+            const spinDuration = spinDurationSlider.value * 1000; // In milliseconds
+            const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
 
             let startTime = null;
 
             function animate(time) {
-                if (!startTime) startTime = time;
+                if (!startTime) startTime = time; // Store the start time of the animation
                 const elapsedTime = time - startTime;
 
-                const progress = Math.min(elapsedTime / spinDuration, 1);
-                spinAngle = (progress * spinTarget);
+                // Slow down the spin more for added suspense
+                const progress = Math.min(elapsedTime / spinDuration, 1); // Correct progress calculation
+                spinAngle = (progress * spinTarget);  // Gradually slow down
 
                 drawWheel();
 
@@ -278,6 +280,7 @@
             requestAnimationFrame(animate);
         }
 
+        // Function to get the winning segment
         function getWinningSegment() {
             const totalRotation = spinAngle % 360;
             const anglePerSegment = 360 / segments.length;
@@ -285,43 +288,36 @@
             return segments[winningIndex];
         }
 
+        // Function to show the pop-up with a "Close" button
         function showPopup(winner) {
             popupMessage.textContent = `Congratulations! You have won ${winner.name}`;
             popup.style.display = 'flex';
         }
 
+        // Close the pop-up when the "Close" button is clicked
         closePopupBtn.addEventListener('click', () => {
             popup.style.display = 'none';
         });
 
+        // Function to add a segment
         function addSegment() {
             const segmentName = segmentInput.value.trim();
             const segmentPercentage = parseFloat(percentageInput.value);
 
-            if (segmentName && segmentPercentage && segmentPercentage > 0 && segmentPercentage <= 100 && totalPercentage + segmentPercentage <= 100) {
+            if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
                 segments.push({ name: segmentName, percentage: segmentPercentage });
                 totalPercentage += segmentPercentage;
 
-                segmentInput.value = '';  
+                segmentInput.value = '';  // Clear input fields
                 percentageInput.value = '';
                 drawWheel();
                 updateWheelDescription();
-                checkButtonsState();
             } else {
                 alert('Please enter a valid segment name and percentage (total percentage must equal 100)');
             }
         }
 
-        function checkButtonsState() {
-            if (totalPercentage >= 100) {
-                addSegmentBtn.disabled = true;
-            } else {
-                addSegmentBtn.disabled = false;
-            }
-
-            spinBtn.disabled = segments.length === 0;
-        }
-
+        // Function to save the wheel to localStorage
         function saveWheel() {
             const wheelName = prompt('Enter a name for this wheel:');
             if (wheelName) {
@@ -332,14 +328,15 @@
             }
         }
 
+        // Function to load a saved wheel from localStorage
         function loadWheel(loadedSegments, wheelName) {
             segments = loadedSegments;
             drawWheel();
             updateWheelDescription();
-            wheelTitle.textContent = wheelName;
-            checkButtonsState();
+            wheelTitle.textContent = wheelName;  // Change the title to the loaded wheel name
         }
 
+        // Function to delete a saved wheel from localStorage
         function deleteSavedWheel(wheelIndex) {
             const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
             savedWheels.splice(wheelIndex, 1);
@@ -347,6 +344,7 @@
             updateSavedWheelsList();
         }
 
+        // Function to update the list of saved wheels
         function updateSavedWheelsList() {
             savedWheelsList.innerHTML = '';
             const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
@@ -355,6 +353,7 @@
                 listItem.classList.add('saved-wheel');
                 listItem.textContent = wheel.name;
 
+                // Delete button for each saved wheel
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.style.marginLeft = '10px';
@@ -366,11 +365,12 @@
             });
         }
 
+        // Update the spin duration label when the slider changes
         spinDurationSlider.addEventListener('input', () => {
             spinDurationLabel.textContent = spinDurationSlider.value;
-            spinDurationFeedback.textContent = spinDurationSlider.value <= 5 ? 'Spin Duration: Fast' : 'Spin Duration: Slow';
         });
 
+        // Add event listeners
         addSegmentBtn.addEventListener('click', addSegment);
         spinBtn.addEventListener('click', spinWheel);
         saveBtn.addEventListener('click', saveWheel);
@@ -379,32 +379,23 @@
             totalPercentage = 0;
             drawWheel();
             updateWheelDescription();
-            wheelTitle.textContent = 'Wheel Spinner';
-            checkButtonsState();
+            wheelTitle.textContent = 'Wheel Spinner';  // Reset the title when creating a new wheel
         });
         shuffleBtn.addEventListener('click', shuffleSegments);
 
+        // Function to shuffle the segments
         function shuffleSegments() {
             for (let i = segments.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [segments[i], segments[j]] = [segments[j], segments[i]];
+                [segments[i], segments[j]] = [segments[j], segments[i]]; // Swap elements
             }
             drawWheel();
             updateWheelDescription();
         }
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
+        // Initial draw of the wheel
         drawWheel();
         updateSavedWheelsList();
-        checkButtonsState();
     </script>
 </body>
 </html>
