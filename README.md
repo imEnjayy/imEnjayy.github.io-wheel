@@ -127,20 +127,6 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
-
-        /* Triangle pointer */
-        #triangle {
-            position: absolute;
-            left: 50%; /* Positioned to the center of the wheel */
-            top: 0;
-            transform: translateX(-50%) translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 30px solid red;
-            z-index: 1000;
-        }
     </style>
 </head>
 <body>
@@ -178,8 +164,6 @@
         </div>
     </div>
 
-    <div id="triangle"></div> <!-- Triangle pointer -->
-
     <script>
         // Initialize global variables
         let segments = [];  // Array to store the segments
@@ -201,20 +185,12 @@
         const shuffleBtn = document.getElementById('shuffle-btn');
         const savedWheelsList = document.getElementById('saved-wheels');
         const popup = document.getElementById('popup');
-        const popupContent = document.getElementById('popup-content');
         const popupMessage = document.getElementById('popup-message');
         const closePopupBtn = document.getElementById('close-popup-btn');
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
-        const triangle = document.getElementById('triangle');
         const wheelTitle = document.getElementById('wheel-title');
-
-        // Define mixed colorways
-        const colorways = [
-            '#3369e8', '#d50f25', '#eeb211', '#009925', // Default colors
-            '#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800' // Rainbow colors
-        ];
 
         // Function to draw the wheel
         function drawWheel() {
@@ -231,7 +207,7 @@
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
-                ctx.fillStyle = colorways[i % colorways.length]; // Randomize colors from both color schemes
+                ctx.fillStyle = (i % 2 === 0) ? '#3369e8' : '#d50f25'; // Alternating colors for simplicity
                 ctx.fill();
                 
                 // Draw black outline between segments
@@ -288,9 +264,6 @@
                 spinAngle = (progress * spinTarget) * 0.85 + (spinTarget * 0.15);  // Gradually slow down
 
                 drawWheel();
-
-                // Move triangle pointer with the wheel
-                triangle.style.transform = `translateX(-50%) translateY(-50%) rotate(${spinAngle}deg)`;  // Triangle stays fixed
 
                 if (elapsedTime < spinDuration * 2) {
                     requestAnimationFrame(animate);
