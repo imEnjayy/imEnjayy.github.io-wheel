@@ -128,11 +128,12 @@
             background-color: #c00e1d;
         }
 
+        /* Triangle pointer above the wheel */
         #triangle {
             position: absolute;
-            top: 50%;
+            top: -20px;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(90deg);
+            transform: translateX(-50%);
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
@@ -157,8 +158,8 @@
 
             <!-- Spin Time Slider -->
             <label for="spin-duration-slider">Spin Duration (seconds): </label>
-            <input type="range" id="spin-duration-slider" min="1" max="10" value="3">
-            <span id="spin-duration-label">3</span> seconds
+            <input type="range" id="spin-duration-slider" min="1" max="10" value="5">
+            <span id="spin-duration-label">5</span> seconds
 
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
@@ -177,7 +178,7 @@
         </div>
     </div>
 
-    <div id="triangle"></div> <!-- Triangle indicator -->
+    <div id="triangle"></div> <!-- Triangle pointer -->
 
     <script>
         // Initialize global variables
@@ -277,21 +278,20 @@
             const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
 
             let startTime = null;
-            let decelerationTime = 0;
 
             function animate(time) {
                 if (!startTime) startTime = time; // Store the start time of the animation
                 const elapsedTime = time - startTime;
 
-                // Decelerate the spin to slow down
-                const progress = Math.min(elapsedTime / spinDuration, 1);
-                decelerationTime = progress * spinTarget; 
-
-                spinAngle = decelerationTime;  // Gradually increase the spin angle
+                // Slow down the spin more for added suspense
+                const progress = Math.min(elapsedTime / (spinDuration * 1.5), 1); // Slower progress
+                spinAngle = progress * spinTarget;  // Gradually increase the spin angle
                 drawWheel();
-                triangle.style.transform = `translate(-50%, -50%) rotate(${spinAngle}deg)`; // Triangle moves with the wheel
                 
-                if (elapsedTime < spinDuration) {
+                // Move triangle pointer with the wheel
+                triangle.style.transform = `translateX(-50%) rotate(${spinAngle}deg)`; 
+
+                if (elapsedTime < spinDuration * 1.5) {
                     requestAnimationFrame(animate);
                 } else {
                     spinning = false;
