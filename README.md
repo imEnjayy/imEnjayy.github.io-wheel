@@ -225,9 +225,15 @@
             const spinDuration = spinDurationSlider.value * 1000; // In milliseconds
             const spinTarget = Math.random() * 7200 + 3600; // Randomize final spin target between 3600 and 10800 degrees
 
-            function animate() {
-                if (spinAngle < spinTarget) {
-                    spinAngle += 10; // Increment the angle for smooth animation
+            let startTime = null;
+            
+            function animate(time) {
+                if (!startTime) startTime = time; // Store the start time of the animation
+                const elapsedTime = time - startTime;
+
+                if (elapsedTime < spinDuration) {
+                    const progress = elapsedTime / spinDuration;
+                    spinAngle = progress * spinTarget; // Gradually increase the spin angle
                     drawWheel();
                     requestAnimationFrame(animate);
                 } else {
@@ -237,7 +243,7 @@
                 }
             }
 
-            animate();
+            requestAnimationFrame(animate);
         }
 
         // Function to get the winning segment
