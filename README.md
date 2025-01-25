@@ -70,6 +70,12 @@
             width: 200px;
         }
 
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+
         #saved-wheels {
             margin-top: 20px;
             list-style: none;
@@ -136,6 +142,13 @@
             <button id="save-btn">Save Wheel</button>
             <button id="new-wheel-btn">Create New Wheel</button>
             <button id="shuffle-btn">Shuffle Segments</button>
+
+            <!-- Colorway Dropdown -->
+            <label for="colorway-select">Select Colorway: </label>
+            <select id="colorway-select">
+                <option value="default">Default</option>
+                <option value="rainbow">Rainbow</option>
+            </select>
         </div>
 
         <h3>Saved Wheels</h3>
@@ -171,6 +184,15 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
+        const colorwaySelect = document.getElementById('colorway-select');
+
+        // Define default and rainbow colorways
+        const colorways = {
+            default: ['#3369e8', '#d50f25', '#eeb211', '#009925'],
+            rainbow: ['#5e02e9', '#3c70ef', '#30d800', '#e7e200', '#fd8b00', '#f20800']
+        };
+
+        let selectedColorway = colorways.default;  // Default colorway
 
         // Function to draw the wheel
         function drawWheel() {
@@ -187,7 +209,7 @@
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
-                ctx.fillStyle = segment.color;
+                ctx.fillStyle = selectedColorway[i % selectedColorway.length];
                 ctx.fill();
 
                 // Text
@@ -269,7 +291,7 @@
             const segmentPercentage = parseFloat(percentageInput.value);
 
             if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
-                segments.push({ name: segmentName, percentage: segmentPercentage, color: getRandomRGBColor() });
+                segments.push({ name: segmentName, percentage: segmentPercentage });
                 totalPercentage += segmentPercentage;
 
                 segmentInput.value = '';  // Clear input fields
@@ -328,13 +350,28 @@
             });
         }
 
-        // Helper function to generate random RGB colors for segments
-        function getRandomRGBColor() {
-            const r = Math.floor(Math.random() * 256);
-            const g = Math.floor(Math.random() * 256);
-            const b = Math.floor(Math.random() * 256);
-            return `rgb(${r},${g},${b})`;
-        }
+        // Update the spin duration label when the slider changes
+        spinDurationSlider.addEventListener('input', () => {
+            spinDurationLabel.textContent = spinDurationSlider.value;
+        });
+
+        // Update colorway when selected
+        colorwaySelect.addEventListener('change', () => {
+            selectedColorway = colorways[colorwaySelect.value];
+            drawWheel();
+        });
+
+        // Add event listeners
+        addSegmentBtn.addEventListener('click', addSegment);
+        spinBtn.addEventListener('click', spinWheel);
+        saveBtn.addEventListener('click', saveWheel);
+        newWheelBtn.addEventListener('click', () => {
+            segments = [];
+            totalPercentage = 0;
+            drawWheel();
+            updateWheelDescription();
+        });
+        shuffleBtn.addEventListener('click', shuffleSegments);
 
         // Function to shuffle the segments
         function shuffleSegments() {
@@ -345,26 +382,6 @@
             drawWheel();
             updateWheelDescription();
         }
-
-        // Function to create a new wheel
-        function createNewWheel() {
-            segments = [];
-            totalPercentage = 0;
-            drawWheel();
-            updateWheelDescription();
-        }
-
-        // Update the spin duration label when the slider changes
-        spinDurationSlider.addEventListener('input', () => {
-            spinDurationLabel.textContent = spinDurationSlider.value;
-        });
-
-        // Add event listeners
-        addSegmentBtn.addEventListener('click', addSegment);
-        spinBtn.addEventListener('click', spinWheel);
-        saveBtn.addEventListener('click', saveWheel);
-        newWheelBtn.addEventListener('click', createNewWheel);
-        shuffleBtn.addEventListener('click', shuffleSegments);
 
         // Initial draw of the wheel
         drawWheel();
