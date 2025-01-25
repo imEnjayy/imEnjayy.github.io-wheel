@@ -128,6 +128,8 @@
             <button id="add-segment-btn">Add Segment</button>
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
+            <button id="new-wheel-btn">Create New Wheel</button>
+            <button id="shuffle-btn">Shuffle Segments</button>
         </div>
 
         <h3>Saved Wheels</h3>
@@ -155,6 +157,8 @@
         const addSegmentBtn = document.getElementById('add-segment-btn');
         const spinBtn = document.getElementById('spin-btn');
         const saveBtn = document.getElementById('save-btn');
+        const newWheelBtn = document.getElementById('new-wheel-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
         const savedWheelsList = document.getElementById('saved-wheels');
         const popup = document.getElementById('popup');
         const popupContent = document.getElementById('popup-content');
@@ -315,10 +319,30 @@
             return color;
         }
 
+        // Function to shuffle the segments
+        function shuffleSegments() {
+            for (let i = segments.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [segments[i], segments[j]] = [segments[j], segments[i]]; // Swap elements
+            }
+            drawWheel();
+            updateWheelDescription();
+        }
+
+        // Function to create a new wheel
+        function createNewWheel() {
+            segments = [];
+            totalPercentage = 0;
+            drawWheel();
+            updateWheelDescription();
+        }
+
         // Add event listeners
         addSegmentBtn.addEventListener('click', addSegment);
         spinBtn.addEventListener('click', spinWheel);
         saveBtn.addEventListener('click', saveWheel);
+        newWheelBtn.addEventListener('click', createNewWheel);
+        shuffleBtn.addEventListener('click', shuffleSegments);
 
         // Initial draw of the wheel
         drawWheel();
