@@ -27,8 +27,8 @@
 
         .wheel {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             border-radius: 50%;
             border: 10px solid #fff;
             overflow: hidden;
@@ -46,7 +46,7 @@
             text-align: center;
             line-height: 140px;
             color: black;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             transform-origin: 100% 100%;
         }
@@ -172,17 +172,17 @@
 
     <script>
         // Wheel prize data
-        const viewerWheelPrizes = [
-            0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 5, 5, 5, 5
-        ];
+        const viewerWheelPrizes = [0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 3, 3, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 10, 10, 10, 10, 12, 12, 12, 12];
+        const codeUserWheelPrizes = [3, 3, 3, 3, 5, 5, 5, 5, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 12, 12, 12, 12, 15, 15, 15, 15, 20, 20, 20, 20];
+        const noProfitWheelPrizes = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2.5, 2.5, 2.5, 2.5, 3, 3, 3, 3, 3.5, 3.5, 3.5, 3.5, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7];
 
-        const codeUserWheelPrizes = [
-            3, 3, 3, 5, 5, 5, 7, 7, 8, 8, 9, 9, 10, 10, 12, 12, 15, 15, 20, 20
-        ];
-
-        const noProfitWheelPrizes = [
-            0, 1, 1, 2, 2, 3, 3, 3.5, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 9, 10
-        ];
+        // Shuffle function to randomize prize order
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
 
         // Toggle Prize Multiplier
         let prizeMultiplier = 1;
@@ -203,14 +203,16 @@
                 prizes = noProfitWheelPrizes;
             }
 
+            shuffleArray(prizes); // Shuffle prizes to randomize positions
+
             const wheel = document.getElementById(wheelType + 'Wheel');
             const numberOfSegments = prizes.length;
 
-            // Create segments for the wheel
+            // Create 36 segments for the wheel
             for (let i = 0; i < numberOfSegments; i++) {
                 let segment = document.createElement('div');
                 segment.classList.add('segment');
-                segment.style.transform = `rotate(${(360 / numberOfSegments) * i}deg)`;
+                segment.style.transform = `rotate(${(360 / 36) * i}deg)`;
                 segment.innerHTML = `$${prizes[i]}`;
                 wheel.appendChild(segment);
             }
