@@ -128,12 +128,24 @@
             background-color: #c00e1d;
         }
 
-        .advanced-options {
-            margin-top: 10px;
+        .input-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .advanced-options label {
-            color: white;
+        .input-wrapper input {
+            margin: 5px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-wrapper input {
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -146,14 +158,16 @@
         </div>
 
         <div class="controls">
-            <input type="text" id="segment-input" placeholder="Enter segment name" />
-            <div class="advanced-options">
-                <input type="checkbox" id="advanced-checkbox" />
-                <label for="advanced-checkbox">Advanced</label>
-            </div>
-            <div id="percentage-controls">
+            <div class="input-wrapper">
+                <input type="text" id="segment-input" placeholder="Enter segment name" />
                 <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" disabled />
             </div>
+
+            <div class="checkbox-wrapper">
+                <label for="manual-percentage-checkbox" style="color: white;">Manual Percentage</label>
+                <input type="checkbox" id="manual-percentage-checkbox" />
+            </div>
+
             <button id="add-segment-btn">Add Segment</button>
 
             <!-- Spin Time Slider -->
@@ -204,7 +218,7 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
-        const advancedCheckbox = document.getElementById('advanced-checkbox');
+        const manualPercentageCheckbox = document.getElementById('manual-percentage-checkbox');
         const wheelTitle = document.getElementById('wheel-title');
 
         // Function to draw the wheel
@@ -321,8 +335,8 @@
             if (segmentName) {
                 let segmentPercentage;
 
-                // Check if advanced options are enabled
-                if (advancedCheckbox.checked) {
+                // Check if the checkbox is checked for manual percentage input
+                if (manualPercentageCheckbox.checked) {
                     segmentPercentage = parseFloat(percentageInput.value);
 
                     if (isNaN(segmentPercentage) || segmentPercentage <= 0 || segmentPercentage > 100) {
@@ -330,7 +344,7 @@
                         return;
                     }
                 } else {
-                    // Automatically divide percentage when advanced is not enabled
+                    // Automatically divide percentage when checkbox is not checked
                     segmentPercentage = 100 / (segments.length + 1);
                 }
 
