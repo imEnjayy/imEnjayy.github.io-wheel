@@ -33,10 +33,10 @@
             border: 10px solid #fff;
             overflow: hidden;
             margin: 0 auto;
-            transform: rotate(0deg);
             transition: transform 4s ease-out;
         }
 
+        /* Create each segment of the wheel */
         .segment {
             position: absolute;
             width: 50%;
@@ -50,9 +50,11 @@
             color: black;
             text-align: center;
             padding: 5px;
+            transform-origin: 100% 100%;
             transition: transform 0.4s ease-out;
         }
 
+        /* Odd/even coloring for alternating segments */
         .segment:nth-child(odd) {
             background-color: #FF5722;
         }
@@ -75,6 +77,7 @@
             background-color: #e67e22;
         }
 
+        /* Popout message styles */
         .popout {
             position: fixed;
             top: 50%;
@@ -86,64 +89,11 @@
             border-radius: 10px;
             display: none;
         }
-
-        /* Switch styles */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 20px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 50px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            border-radius: 50px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(14px);
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Prize Wheels</h1>
-        
-        <!-- Toggle switch for doubling prizes -->
-        <label class="switch">
-            <input type="checkbox" id="togglePrize">
-            <span class="slider"></span>
-        </label>
-        <p>Double prizes: <span id="status">OFF</span></p>
 
         <!-- Viewer Wheel -->
         <div class="wheel-container">
@@ -184,14 +134,6 @@
                 [array[i], array[j]] = [array[j], array[i]]; // Swap elements
             }
         }
-
-        // Toggle Prize Multiplier
-        let prizeMultiplier = 1;
-
-        document.getElementById('togglePrize').addEventListener('change', (event) => {
-            prizeMultiplier = event.target.checked ? 2 : 1;
-            document.getElementById('status').textContent = event.target.checked ? 'ON' : 'OFF';
-        });
 
         // Function to generate wheel with segments
         function createWheel(wheelType) {
@@ -242,7 +184,7 @@
 
                 // Determine the prize based on the final position
                 const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / prizeData.length));
-                const prizeAmount = prizeData[prizeIndex] * prizeMultiplier;
+                const prizeAmount = prizeData[prizeIndex];
 
                 // Show popout message with the prize
                 document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
