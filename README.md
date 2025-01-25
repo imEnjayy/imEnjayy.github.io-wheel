@@ -36,7 +36,6 @@
             transition: transform 4s ease-out;
         }
 
-        /* Create each segment of the wheel */
         .segment {
             position: absolute;
             width: 50%;
