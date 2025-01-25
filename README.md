@@ -143,6 +143,9 @@
         let segments = [];  // Array to store the segments
         let totalPercentage = 0;
         let angle = 0;
+        let spinDuration = 7000; // 7 seconds for spinning
+        let spinStartTime = null;
+        let animationFrameId = null;
 
         // Get DOM elements
         const wheelCanvas = document.getElementById('wheel');
@@ -202,20 +205,22 @@
         // Function to spin the wheel
         function spinWheel() {
             const randomRotation = Math.random() * 360 + 3600; // Random between 3600 and 7200 degrees
-            const duration = 7000;  // 7 seconds for spinning
-            const start = Date.now();
-
-            const spinInterval = setInterval(() => {
-                const timeElapsed = Date.now() - start;
-                if (timeElapsed < duration) {
-                    angle = (timeElapsed / duration) * randomRotation;
+            const spinStartTime = Date.now();
+            
+            function animate() {
+                const elapsedTime = Date.now() - spinStartTime;
+                if (elapsedTime < spinDuration) {
+                    angle = (elapsedTime / spinDuration) * randomRotation;
                     drawWheel();
+                    animationFrameId = requestAnimationFrame(animate);
                 } else {
-                    clearInterval(spinInterval);
+                    cancelAnimationFrame(animationFrameId);
                     const winner = getWinningSegment();
                     showPopup(winner);
                 }
-            }, 1000 / 60); // 60 FPS
+            }
+
+            animate();
         }
 
         // Function to get the winning segment
@@ -318,7 +323,6 @@
         // Initial draw of the wheel
         drawWheel();
         updateSavedWheelsList();
-
     </script>
 </body>
 </html>
