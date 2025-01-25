@@ -127,26 +127,6 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
-
-        .input-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .input-wrapper input {
-            margin: 5px;
-        }
-
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .checkbox-wrapper input {
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
@@ -158,16 +138,8 @@
         </div>
 
         <div class="controls">
-            <div class="input-wrapper">
-                <input type="text" id="segment-input" placeholder="Enter segment name" />
-                <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" disabled />
-            </div>
-
-            <div class="checkbox-wrapper">
-                <label for="manual-percentage-checkbox" style="color: white;">Manual Percentage</label>
-                <input type="checkbox" id="manual-percentage-checkbox" />
-            </div>
-
+            <input type="text" id="segment-input" placeholder="Enter segment name" />
+            <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
             <button id="add-segment-btn">Add Segment</button>
 
             <!-- Spin Time Slider -->
@@ -218,7 +190,6 @@
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
-        const manualPercentageCheckbox = document.getElementById('manual-percentage-checkbox');
         const wheelTitle = document.getElementById('wheel-title');
 
         // Function to draw the wheel
@@ -269,7 +240,7 @@
             wheelDescription.innerHTML = '';
             segments.forEach(segment => {
                 const prizeInfo = document.createElement('p');
-                prizeInfo.textContent = `${segment.name} - ${segment.percentage}%`;
+                prizeInfo.textContent = ${segment.name} - ${segment.percentage}%;
                 wheelDescription.appendChild(prizeInfo);
             });
         }
@@ -319,7 +290,7 @@
 
         // Function to show the pop-up with a "Close" button
         function showPopup(winner) {
-            popupMessage.textContent = `Congratulations! You have won ${winner.name}`;
+            popupMessage.textContent = Congratulations! You have won ${winner.name};
             popup.style.display = 'flex';
         }
 
@@ -331,40 +302,18 @@
         // Function to add a segment
         function addSegment() {
             const segmentName = segmentInput.value.trim();
+            const segmentPercentage = parseFloat(percentageInput.value);
 
-            if (segmentName) {
-                let segmentPercentage;
-
-                // Check if the checkbox is checked for manual percentage input
-                if (manualPercentageCheckbox.checked) {
-                    segmentPercentage = parseFloat(percentageInput.value);
-
-                    if (isNaN(segmentPercentage) || segmentPercentage <= 0 || segmentPercentage > 100) {
-                        alert('Please enter a valid percentage (1-100).');
-                        return;
-                    }
-                } else {
-                    // Automatically divide percentage when checkbox is not checked
-                    const remainingPercentage = 100 - totalPercentage;
-                    segmentPercentage = remainingPercentage / (segments.length + 1);
-                }
-
-                // Add the new segment
+            if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
                 segments.push({ name: segmentName, percentage: segmentPercentage });
                 totalPercentage += segmentPercentage;
 
-                if (totalPercentage > 100) {
-                    alert('Total percentage exceeds 100%. Please adjust the percentages.');
-                    return;
-                }
-
-                // Clear the input fields
-                segmentInput.value = '';
+                segmentInput.value = '';  // Clear input fields
                 percentageInput.value = '';
                 drawWheel();
                 updateWheelDescription();
             } else {
-                alert('Please enter a valid segment name.');
+                alert('Please enter a valid segment name and percentage (total percentage must equal 100)');
             }
         }
 
