@@ -345,7 +345,8 @@
                     }
                 } else {
                     // Automatically divide percentage when checkbox is not checked
-                    segmentPercentage = 100 / (segments.length + 1);
+                    const remainingPercentage = 100 - totalPercentage;
+                    segmentPercentage = remainingPercentage / (segments.length + 1);
                 }
 
                 // Add the new segment
