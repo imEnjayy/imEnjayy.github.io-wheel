@@ -26,11 +26,37 @@
         }
 
         .wheel {
-            width: 200px;
-            height: 200px;
+            position: relative;
+            width: 300px;
+            height: 300px;
             border-radius: 50%;
-            background: conic-gradient(red, orange, yellow, green, blue, purple);
+            border: 10px solid #fff;
+            overflow: hidden;
             margin: 0 auto;
+            transform: rotate(0deg);
+            transition: transform 4s ease-out;
+        }
+
+        .wheel .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background-color: #FF8C00;
+            clip-path: polygon(100% 0%, 100% 100%, 0 100%, 0 0%);
+            text-align: center;
+            line-height: 140px;
+            color: black;
+            font-size: 20px;
+            font-weight: bold;
+            transform-origin: 100% 100%;
+        }
+
+        .wheel .segment:nth-child(even) {
+            background-color: #FF5722;
+        }
+
+        .wheel .segment:nth-child(odd) {
+            background-color: #4CAF50;
         }
 
         button {
@@ -147,39 +173,15 @@
     <script>
         // Wheel prize data
         const viewerWheelPrizes = [
-            { amount: 0, probability: 15 },
-            { amount: 2, probability: 14 },
-            { amount: 3, probability: 12 },
-            { amount: 5, probability: 12 },
-            { amount: 6, probability: 11 },
-            { amount: 7, probability: 10 },
-            { amount: 8, probability: 9 },
-            { amount: 10, probability: 9 },
-            { amount: 12, probability: 8 }
+            0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 5, 5, 5, 5
         ];
 
         const codeUserWheelPrizes = [
-            { amount: 3, probability: 15 },
-            { amount: 5, probability: 14 },
-            { amount: 7, probability: 12 },
-            { amount: 8, probability: 12 },
-            { amount: 9, probability: 11 },
-            { amount: 10, probability: 10 },
-            { amount: 12, probability: 9 },
-            { amount: 15, probability: 9 },
-            { amount: 20, probability: 8 }
+            3, 3, 3, 5, 5, 5, 7, 7, 8, 8, 9, 9, 10, 10, 12, 12, 15, 15, 20, 20
         ];
 
         const noProfitWheelPrizes = [
-            { amount: 0, probability: 16 },
-            { amount: 1, probability: 16 },
-            { amount: 2, probability: 16 },
-            { amount: 2.5, probability: 12 },
-            { amount: 3, probability: 10 },
-            { amount: 3.5, probability: 8 },
-            { amount: 4, probability: 7 },
-            { amount: 5, probability: 6 },
-            { amount: 7, probability: 4 }
+            0, 1, 1, 2, 2, 3, 3, 3.5, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 9, 10
         ];
 
         // Toggle Prize Multiplier
@@ -190,45 +192,70 @@
             document.getElementById('status').textContent = event.target.checked ? 'ON' : 'OFF';
         });
 
+        // Function to generate wheel with segments
+        function createWheel(wheelType) {
+            let prizes = [];
+            if (wheelType === 'viewer') {
+                prizes = viewerWheelPrizes;
+            } else if (wheelType === 'codeUser') {
+                prizes = codeUserWheelPrizes;
+            } else if (wheelType === 'noProfit') {
+                prizes = noProfitWheelPrizes;
+            }
+
+            const wheel = document.getElementById(wheelType + 'Wheel');
+            const numberOfSegments = prizes.length;
+
+            // Create segments for the wheel
+            for (let i = 0; i < numberOfSegments; i++) {
+                let segment = document.createElement('div');
+                segment.classList.add('segment');
+                segment.style.transform = `rotate(${(360 / numberOfSegments) * i}deg)`;
+                segment.innerHTML = `$${prizes[i]}`;
+                wheel.appendChild(segment);
+            }
+        }
+
         // Spin Wheel Function
         function spinWheel(wheelType) {
-            let prizeData = [];
-            let wheelTitle = "";
-            let prizeAmount = 0;
+            const wheel = document.getElementById(wheelType + 'Wheel');
+            const totalSpins = Math.floor(Math.random() * 3) + 4;  // Random number of spins
 
-            if (wheelType === "viewer") {
-                prizeData = viewerWheelPrizes;
-                wheelTitle = "Viewer Wheel";
-            } else if (wheelType === "codeUser") {
-                prizeData = codeUserWheelPrizes;
-                wheelTitle = "Code User Wheel";
-            } else if (wheelType === "noProfit") {
-                prizeData = noProfitWheelPrizes;
-                wheelTitle = "No Profit Wheel";
-            }
+            // Add a random rotation for the spin
+            const rotation = Math.floor(Math.random() * 360);
+            wheel.style.transition = 'transform 4s ease-out';
+            wheel.style.transform = `rotate(${rotation + 360 * totalSpins}deg)`;
 
-            // Randomly pick a prize based on probability
-            const totalProbability = prizeData.reduce((sum, prize) => sum + prize.probability, 0);
-            const random = Math.random() * totalProbability;
-            let cumulativeProbability = 0;
-
-            for (let prize of prizeData) {
-                cumulativeProbability += prize.probability;
-                if (random < cumulativeProbability) {
-                    prizeAmount = prize.amount * prizeMultiplier;
-                    break;
-                }
-            }
-
-            // Show popout message with the prize
-            document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelTitle}!`;
-            document.getElementById('popout').style.display = "block";
-
-            // Hide popout after 3 seconds
+            // Get the prize after the wheel stops spinning
             setTimeout(() => {
-                document.getElementById('popout').style.display = "none";
-            }, 3000);
+                let prizeData = [];
+                if (wheelType === 'viewer') {
+                    prizeData = viewerWheelPrizes;
+                } else if (wheelType === 'codeUser') {
+                    prizeData = codeUserWheelPrizes;
+                } else if (wheelType === 'noProfit') {
+                    prizeData = noProfitWheelPrizes;
+                }
+
+                // Determine the prize based on the final position
+                const prizeIndex = Math.floor((rotation + 360 * totalSpins) % 360 / (360 / prizeData.length));
+                const prizeAmount = prizeData[prizeIndex] * prizeMultiplier;
+
+                // Show popout message with the prize
+                document.getElementById('popoutMessage').textContent = `Congratulations! You won $${prizeAmount} from the ${wheelType.charAt(0).toUpperCase() + wheelType.slice(1)} Wheel!`;
+                document.getElementById('popout').style.display = "block";
+
+                // Hide popout after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('popout').style.display = "none";
+                }, 3000);
+            }, 4000);  // Wait for the wheel to stop spinning
         }
+
+        // Initialize wheels
+        createWheel('viewer');
+        createWheel('codeUser');
+        createWheel('noProfit');
     </script>
 </body>
 </html>
