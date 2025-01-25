@@ -168,7 +168,7 @@
             const numberOfSegments = 9;
             let segments = [];
 
-            // Calculate the number of segments for each prize
+            // Calculate the number of segments for each prize based on percentage
             prizeData.forEach(prize => {
                 const segmentCount = Math.round((prize.percentage / 100) * numberOfSegments);
                 for (let i = 0; i < segmentCount; i++) {
