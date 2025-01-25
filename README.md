@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 const wheels = {
   viewer: [
     { value: 0, probability: 15 },
