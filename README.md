@@ -44,9 +44,9 @@
             background-color: #FF8C00;
             clip-path: polygon(100% 0%, 100% 100%, 0 100%, 0 0%);
             text-align: center;
-            line-height: 140px;
+            line-height: 80px;
             color: black;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             transform-origin: 100% 100%;
         }
