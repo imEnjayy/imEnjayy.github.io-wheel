@@ -48,6 +48,46 @@
             margin: 10px;
             width: 200px;
         }
+
+        #saved-wheels {
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .saved-wheel {
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+        .saved-wheel:hover {
+            background-color: #555;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .popup-content {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -59,49 +99,65 @@
 
         <div class="controls">
             <input type="text" id="segment-input" placeholder="Enter segment name" />
+            <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
             <button id="add-segment-btn">Add Segment</button>
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
-            <button id="load-btn">Load Wheel</button>
         </div>
+
+        <h3>Saved Wheels</h3>
+        <ul id="saved-wheels"></ul>
+    </div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content" id="popup-content"></div>
     </div>
 
     <script>
         // Initialize global variables
         let segments = [];  // Array to store the segments
-        let angle = 0;      // To store the current rotation of the wheel
+        let totalPercentage = 0;
+        let angle = 0;
 
         // Get DOM elements
         const wheelCanvas = document.getElementById('wheel');
         const ctx = wheelCanvas.getContext('2d');
         const segmentInput = document.getElementById('segment-input');
+        const percentageInput = document.getElementById('percentage-input');
         const addSegmentBtn = document.getElementById('add-segment-btn');
         const spinBtn = document.getElementById('spin-btn');
         const saveBtn = document.getElementById('save-btn');
-        const loadBtn = document.getElementById('load-btn');
+        const savedWheelsList = document.getElementById('saved-wheels');
+        const popup = document.getElementById('popup');
+        const popupContent = document.getElementById('popup-content');
 
         // Function to draw the wheel
         function drawWheel() {
             const radius = wheelCanvas.width / 2;
-            const segmentAngle = (2 * Math.PI) / segments.length;
+            const segmentAngle = (2 * Math.PI) / 100;
+            let offsetAngle = -Math.PI / 2; // Start from top
 
             ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
             ctx.translate(radius, radius);
 
             segments.forEach((segment, i) => {
+                const anglePercentage = segment.percentage / 100 * 2 * Math.PI;
+
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.arc(0, 0, radius, i * segmentAngle, (i + 1) * segmentAngle);
-                ctx.fillStyle = getRandomColor();
+                ctx.arc(0, 0, radius, offsetAngle, offsetAngle + anglePercentage);
+                ctx.fillStyle = segment.color;
                 ctx.fill();
 
                 // Text
                 ctx.save();
-                ctx.rotate(i * segmentAngle + segmentAngle / 2);
+                ctx.rotate(offsetAngle + anglePercentage / 2);
                 ctx.fillStyle = "white";
                 ctx.font = "16px Arial";
-                ctx.fillText(segment, radius / 2, 0);
+                ctx.fillText(segment.name, radius / 2, 0);
                 ctx.restore();
+
+                offsetAngle += anglePercentage;
             });
 
             ctx.resetTransform();
@@ -110,7 +166,7 @@
         // Function to spin the wheel
         function spinWheel() {
             const randomRotation = Math.random() * 360 + 3600; // Random between 3600 and 7200 degrees
-            const duration = 5000;  // 5 seconds for spinning
+            const duration = 7000;  // 7 seconds for spinning
             const start = Date.now();
 
             const spinInterval = setInterval(() => {
@@ -120,45 +176,76 @@
                     drawWheel();
                 } else {
                     clearInterval(spinInterval);
+                    const winner = getWinningSegment();
+                    showPopup(winner);
                 }
             }, 1000 / 60); // 60 FPS
+        }
+
+        // Function to get the winning segment
+        function getWinningSegment() {
+            const totalRotation = angle % 360;
+            const anglePerSegment = 360 / segments.length;
+            const winningIndex = Math.floor(totalRotation / anglePerSegment);
+            return segments[winningIndex];
+        }
+
+        // Function to show the pop-up
+        function showPopup(winner) {
+            popupContent.textContent = `Congratulations! You have won ${winner.name}`;
+            popup.style.display = 'flex';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000); // Hide the popup after 3 seconds
         }
 
         // Function to add a segment
         function addSegment() {
             const segmentName = segmentInput.value.trim();
-            if (segmentName) {
-                segments.push(segmentName);
-                segmentInput.value = '';  // Clear input
+            const segmentPercentage = parseFloat(percentageInput.value);
+
+            if (segmentName && segmentPercentage && totalPercentage + segmentPercentage <= 100) {
+                segments.push({ name: segmentName, percentage: segmentPercentage, color: getRandomColor() });
+                totalPercentage += segmentPercentage;
+
+                segmentInput.value = '';  // Clear input fields
+                percentageInput.value = '';
                 drawWheel();
+                updateSavedWheelsList();
+            } else {
+                alert('Please enter a valid segment name and percentage (total percentage must equal 100)');
             }
         }
 
         // Function to save the wheel to localStorage
         function saveWheel() {
-            localStorage.setItem('wheelSegments', JSON.stringify(segments));
-            alert('Wheel saved!');
-        }
-
-        // Function to load the saved wheel from localStorage
-        function loadWheel() {
-            const savedSegments = JSON.parse(localStorage.getItem('wheelSegments'));
-            if (savedSegments) {
-                segments = savedSegments;
-                drawWheel();
-            } else {
-                alert('No saved wheel found.');
+            const wheelName = prompt('Enter a name for this wheel:');
+            if (wheelName) {
+                const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
+                savedWheels.push({ name: wheelName, segments: segments });
+                localStorage.setItem('savedWheels', JSON.stringify(savedWheels));
+                updateSavedWheelsList();
             }
         }
 
-        // Add event listeners
-        addSegmentBtn.addEventListener('click', addSegment);
-        spinBtn.addEventListener('click', spinWheel);
-        saveBtn.addEventListener('click', saveWheel);
-        loadBtn.addEventListener('click', loadWheel);
+        // Function to load a saved wheel from localStorage
+        function loadWheel(loadedSegments) {
+            segments = loadedSegments;
+            drawWheel();
+        }
 
-        // Initial drawing of the wheel
-        drawWheel();
+        // Function to update the list of saved wheels
+        function updateSavedWheelsList() {
+            savedWheelsList.innerHTML = '';
+            const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
+            savedWheels.forEach((wheel, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${wheel.name}`;
+                listItem.classList.add('saved-wheel');
+                listItem.addEventListener('click', () => loadWheel(wheel.segments));
+                savedWheelsList.appendChild(listItem);
+            });
+        }
 
         // Helper function to generate random colors for segments
         function getRandomColor() {
@@ -169,6 +256,16 @@
             }
             return color;
         }
+
+        // Add event listeners
+        addSegmentBtn.addEventListener('click', addSegment);
+        spinBtn.addEventListener('click', spinWheel);
+        saveBtn.addEventListener('click', saveWheel);
+
+        // Initial draw of the wheel
+        drawWheel();
+        updateSavedWheelsList();
+
     </script>
 </body>
 </html>
