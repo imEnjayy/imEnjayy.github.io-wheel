@@ -127,6 +127,22 @@
         .close-btn:hover {
             background-color: #c00e1d;
         }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            margin-left: -15px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 20px solid #d50f25;
+        }
+
+        #wheel {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -142,15 +158,9 @@
             <input type="number" id="percentage-input" placeholder="Enter percentage" min="1" max="100" />
             <button id="add-segment-btn">Add Segment</button>
 
-            <!-- Spin Time Slider -->
-            <label for="spin-duration-slider">Spin Duration (seconds): </label>
-            <input type="range" id="spin-duration-slider" min="1" max="10" value="5">
-            <span id="spin-duration-label">5</span> seconds
-
             <button id="spin-btn">Spin!</button>
             <button id="save-btn">Save Wheel</button>
             <button id="new-wheel-btn">Create New Wheel</button>
-            <button id="shuffle-btn">Shuffle Segments</button>
         </div>
 
         <h3>Saved Wheels</h3>
@@ -165,7 +175,6 @@
     </div>
 
     <script>
-        // Initialize global variables
         let segments = [];
         let totalPercentage = 0;
         let angle = 0;
@@ -173,7 +182,6 @@
         let spinAngle = 0;
         let spinTimeout = null;
 
-        // Get DOM elements
         const wheelCanvas = document.getElementById('wheel');
         const ctx = wheelCanvas.getContext('2d');
         const segmentInput = document.getElementById('segment-input');
@@ -182,17 +190,17 @@
         const spinBtn = document.getElementById('spin-btn');
         const saveBtn = document.getElementById('save-btn');
         const newWheelBtn = document.getElementById('new-wheel-btn');
-        const shuffleBtn = document.getElementById('shuffle-btn');
         const savedWheelsList = document.getElementById('saved-wheels');
         const popup = document.getElementById('popup');
         const popupMessage = document.getElementById('popup-message');
         const closePopupBtn = document.getElementById('close-popup-btn');
         const wheelDescription = document.getElementById('wheel-description');
-        const spinDurationSlider = document.getElementById('spin-duration-slider');
-        const spinDurationLabel = document.getElementById('spin-duration-label');
         const wheelTitle = document.getElementById('wheel-title');
 
-        // Function to draw the wheel
+        const pointer = document.createElement('div');
+        pointer.classList.add('pointer');
+        wheelCanvas.parentElement.appendChild(pointer);
+
         function drawWheel() {
             const radius = wheelCanvas.width / 2;
             const segmentAngle = (2 * Math.PI) / 100;
@@ -233,74 +241,43 @@
             ctx.resetTransform();
         }
 
-        // Function to draw the triangle pointer
         function drawPointer() {
-            const radius = wheelCanvas.width / 2;
-            const pointerHeight = 20; 
-            const pointerX = radius;
-            const pointerY = -radius - pointerHeight;
-
-            ctx.beginPath();
-            ctx.moveTo(pointerX - pointerHeight / 2, pointerY);
-            ctx.lineTo(pointerX + pointerHeight / 2, pointerY);
-            ctx.lineTo(pointerX, pointerY - pointerHeight);
-            ctx.closePath();
-            ctx.fillStyle = '#d50f25'; 
-            ctx.fill();
+            pointer.style.transform = `rotate(${spinAngle}rad)`;
         }
 
-        // Function to update the prize description area
-        function updateWheelDescription() {
-            wheelDescription.innerHTML = '';
-            segments.forEach(segment => {
-                const prizeInfo = document.createElement('p');
-                prizeInfo.textContent = `${segment.name} - ${segment.percentage}%`;
-                wheelDescription.appendChild(prizeInfo);
-            });
-        }
-
-        // Function to spin the wheel
         function spinWheel() {
             if (spinning) return;
 
             spinning = true;
-            spinAngle = 0;
+            const spinDuration = 3;
+            const spinSpeed = 10;
+            let startAngle = spinAngle;
+            let totalRotation = Math.random() * 2 * Math.PI + Math.PI * 3;
 
-            const spinDuration = spinDurationSlider.value * 1000;
-            const spinTarget = Math.random() * 7200 + 3600;
-
-            let startTime = null;
-
-            function animate(time) {
-                if (!startTime) startTime = time;
-                const elapsedTime = time - startTime;
-
-                const progress = Math.min(elapsedTime / spinDuration, 1);
-                spinAngle = (progress * spinTarget);
-
-                drawWheel();
-
-                if (elapsedTime < spinDuration) {
-                    requestAnimationFrame(animate);
-                } else {
+            function animate() {
+                spinAngle += (spinSpeed * Math.PI / 180); // Rotate in small increments
+                if (spinAngle >= totalRotation) {
                     spinning = false;
                     const winner = getWinningSegment();
                     showPopup(winner);
                 }
+
+                drawWheel();
+                if (spinning) {
+                    requestAnimationFrame(animate);
+                }
             }
 
-            requestAnimationFrame(animate);
+            animate();
         }
 
-        // Function to get the winning segment
         function getWinningSegment() {
-            const totalRotation = spinAngle % 360;
-            const anglePerSegment = 360 / segments.length;
-            const winningIndex = Math.floor(totalRotation / anglePerSegment);
+            const totalRotation = spinAngle % (2 * Math.PI);
+            const anglePerSegment = 2 * Math.PI / segments.length;
+            const winningIndex = Math.floor((totalRotation / anglePerSegment)) % segments.length;
             return segments[winningIndex];
         }
 
-        // Function to show the pop-up with a "Close" button
         function showPopup(winner) {
             popupMessage.textContent = `Congratulations! You have won ${winner.name}`;
             popup.style.display = 'flex';
@@ -310,7 +287,6 @@
             popup.style.display = 'none';
         });
 
-        // Function to add a segment
         function addSegment() {
             const segmentName = segmentInput.value.trim();
             const segmentPercentage = parseFloat(percentageInput.value);
@@ -328,7 +304,6 @@
             }
         }
 
-        // Function to save the wheel
         function saveWheel() {
             const wheelName = prompt('Enter a name for this wheel:');
             if (wheelName) {
@@ -339,7 +314,6 @@
             }
         }
 
-        // Function to load a saved wheel
         function loadWheel(loadedSegments, wheelName) {
             segments = loadedSegments;
             drawWheel();
@@ -347,7 +321,6 @@
             wheelTitle.textContent = wheelName;
         }
 
-        // Function to delete a saved wheel
         function deleteSavedWheel(wheelIndex) {
             const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
             savedWheels.splice(wheelIndex, 1);
@@ -355,7 +328,6 @@
             updateSavedWheelsList();
         }
 
-        // Function to update saved wheels list
         function updateSavedWheelsList() {
             savedWheelsList.innerHTML = '';
             const savedWheels = JSON.parse(localStorage.getItem('savedWheels')) || [];
@@ -375,12 +347,6 @@
             });
         }
 
-        // Update spin duration label when slider changes
-        spinDurationSlider.addEventListener('input', () => {
-            spinDurationLabel.textContent = spinDurationSlider.value;
-        });
-
-        // Event listeners
         addSegmentBtn.addEventListener('click', addSegment);
         spinBtn.addEventListener('click', spinWheel);
         saveBtn.addEventListener('click', saveWheel);
@@ -391,19 +357,7 @@
             updateWheelDescription();
             wheelTitle.textContent = 'Wheel Spinner';
         });
-        shuffleBtn.addEventListener('click', shuffleSegments);
 
-        // Function to shuffle the segments
-        function shuffleSegments() {
-            for (let i = segments.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [segments[i], segments[j]] = [segments[j], segments[i]]; 
-            }
-            drawWheel();
-            updateWheelDescription();
-        }
-
-        // Initial draw of the wheel
         drawWheel();
         updateSavedWheelsList();
     </script>
