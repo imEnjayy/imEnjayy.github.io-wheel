@@ -201,12 +201,15 @@
                 ctx.strokeStyle = 'black';
                 ctx.stroke();
 
-                // Text
+                // Draw the text
                 ctx.save();
                 ctx.rotate(offsetAngle + anglePercentage / 2);
                 ctx.fillStyle = "white";
-                ctx.font = "16px Arial";
-                ctx.fillText(segment.name, radius / 2, 0);
+                ctx.font = "24px Arial";  // Larger font size
+                ctx.lineWidth = 4; // Stroke width for the text
+                ctx.strokeStyle = 'black';  // Black stroke around text
+                ctx.strokeText(segment.name, radius / 2, 0);  // Add stroke
+                ctx.fillText(segment.name, radius / 2, 0);  // Add filled text
                 ctx.restore();
 
                 offsetAngle += anglePercentage;
