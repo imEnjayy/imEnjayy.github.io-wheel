@@ -128,12 +128,12 @@
             background-color: #c00e1d;
         }
 
-        /* Triangle pointer on the left side of the wheel */
+        /* Triangle pointer */
         #triangle {
             position: absolute;
-            left: -25px; /* Positioned to the left side of the wheel */
-            top: 50%;
-            transform: translateY(-50%);
+            left: 50%; /* Positioned to the center of the wheel */
+            top: 0;
+            transform: translateX(-50%) translateY(-50%);
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
@@ -284,15 +284,15 @@
                 const elapsedTime = time - startTime;
 
                 // Slow down the spin more for added suspense
-                const progress = Math.min(elapsedTime / (spinDuration * 1.5), 1); // Slower progress
-                spinAngle = (progress * spinTarget) * 0.9 + (spinTarget * 0.1);  // Gradually slow down
+                const progress = Math.min(elapsedTime / (spinDuration * 2), 1); // Slower progress (slower than previous value)
+                spinAngle = (progress * spinTarget) * 0.85 + (spinTarget * 0.15);  // Gradually slow down
 
                 drawWheel();
 
                 // Move triangle pointer with the wheel
-                triangle.style.transform = `translateY(-50%) rotate(${spinAngle}deg)`;  // Triangle stays fixed
+                triangle.style.transform = `translateX(-50%) translateY(-50%) rotate(${spinAngle}deg)`;  // Triangle stays fixed
 
-                if (elapsedTime < spinDuration * 1.5) {
+                if (elapsedTime < spinDuration * 2) {
                     requestAnimationFrame(animate);
                 } else {
                     spinning = false;
