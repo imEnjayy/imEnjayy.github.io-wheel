@@ -165,7 +165,7 @@
     <div class="container">
         <h1 id="wheel-title">Wheel Spinner</h1>
         <div id="wheel-container" class="wheel-and-description">
-            <canvas id="wheel" width="500" height="500"></canvas>
+            <canvas id="wheel" width="400" height="400"></canvas>
             <div id="wheel-description" class="wheel-description"></div>
         </div>
 
