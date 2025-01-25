@@ -112,6 +112,20 @@
             border-radius: 10px;
             text-align: center;
         }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #d50f25;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: #c00e1d;
+        }
     </style>
 </head>
 <body>
@@ -143,7 +157,10 @@
     </div>
 
     <div class="popup" id="popup">
-        <div class="popup-content" id="popup-content"></div>
+        <div class="popup-content" id="popup-content">
+            <div id="popup-message"></div>
+            <button class="close-btn" id="close-popup-btn">Close</button>
+        </div>
     </div>
 
     <script>
@@ -168,6 +185,8 @@
         const savedWheelsList = document.getElementById('saved-wheels');
         const popup = document.getElementById('popup');
         const popupContent = document.getElementById('popup-content');
+        const popupMessage = document.getElementById('popup-message');
+        const closePopupBtn = document.getElementById('close-popup-btn');
         const wheelDescription = document.getElementById('wheel-description');
         const spinDurationSlider = document.getElementById('spin-duration-slider');
         const spinDurationLabel = document.getElementById('spin-duration-label');
@@ -268,14 +287,16 @@
             return segments[winningIndex];
         }
 
-        // Function to show the pop-up
+        // Function to show the pop-up with a "Close" button
         function showPopup(winner) {
-            popupContent.textContent = `Congratulations! You have won ${winner.name}`;
+            popupMessage.textContent = `Congratulations! You have won ${winner.name}`;
             popup.style.display = 'flex';
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, 3000); // Hide the popup after 3 seconds
         }
+
+        // Close the pop-up when the "Close" button is clicked
+        closePopupBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
 
         // Function to add a segment
         function addSegment() {
